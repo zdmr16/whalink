@@ -1,0 +1,212 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: whalink_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-evolution}
+      POSTGRES_USER: ${POSTGRES_USER:-evolution}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_please}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - whalink-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-evolution}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: whalink_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - whalink-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Evolution API - WhatsApp Integration
+  evolution-api:
+    image: evoapicloud/evolution-api:latest
+    container_name: whalink_evolution_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Server Configuration
+      - SERVER_TYPE=http
+      - SERVER_PORT=8080
+      - SERVER_URL=${SERVER_URL:-http://localhost:8080}
+
+      # Database
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER:-evolution}:${POSTGRES_PASSWORD:-change_me_please}@postgres:5432/${POSTGRES_DB:-evolution}?schema=public
+      - DATABASE_SAVE_DATA_INSTANCE=true
+      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
+      - DATABASE_SAVE_MESSAGE_UPDATE=true
+      - DATABASE_SAVE_DATA_CONTACTS=true
+      - DATABASE_SAVE_DATA_CHATS=true
+
+      # Redis Cache
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis:6379
+      - CACHE_REDIS_PREFIX_KEY=evolution
+      - CACHE_REDIS_SAVE_INSTANCES=true
+
+      # Authentication
+      - AUTHENTICATION_API_KEY=${API_KEY:-B6D711FCDE4D4FD5936544120E713976}
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+
+      # WebSocket - Real-time
+      - WEBSOCKET_ENABLED=true
+      - WEBSOCKET_GLOBAL_EVENTS=true
+
+      # CORS
+      - CORS_ORIGIN=*
+      - CORS_METHODS=GET,POST,PUT,DELETE
+      - CORS_CREDENTIALS=true
+
+      # Logging
+      - LOG_LEVEL=ERROR,WARN,INFO
+      - LOG_COLOR=true
+      - LOG_BAILEYS=error
+
+      # Integrations (Disabled by default)
+      - TYPEBOT_ENABLED=false
+      - CHATWOOT_ENABLED=false
+      - OPENAI_ENABLED=false
+      - N8N_ENABLED=false
+
+      # Message Queue (Disabled)
+      - RABBITMQ_ENABLED=false
+      - SQS_ENABLED=false
+      - KAFKA_ENABLED=false
+
+      # Storage (Local filesystem)
+      - S3_ENABLED=false
+      - MINIO_ENABLED=false
+
+      # Webhook
+      - WEBHOOK_GLOBAL_ENABLED=false
+      - WEBHOOK_GLOBAL_URL=
+      - WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS=false
+
+      # Telemetry
+      - TELEMETRY_ENABLED=false
+
+      # Metrics for Prometheus
+      - METRICS_ENABLED=true
+      - METRICS_PORT=9090
+    volumes:
+      - ./data/evolution:/evolution/instances
+    networks:
+      - whalink-network
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Evolution Manager - Frontend UI
+  evolution-manager:
+    image: evoapicloud/evolution-manager:latest
+    container_name: whalink_manager
+    restart: unless-stopped
+    depends_on:
+      - evolution-api
+    environment:
+      - VITE_API_URL=https://localhost
+    networks:
+      - whalink-network
+    ports:
+      - "3000:80"
+
+  # Nginx - SSL Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: whalink_nginx
+    restart: unless-stopped
+    depends_on:
+      - evolution-api
+      - evolution-manager
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - whalink-network
+    ports:
+      - "80:80"
+      - "443:443"
+
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: whalink_prometheus
+    restart: unless-stopped
+    depends_on:
+      - evolution-api
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./data/prometheus:/prometheus
+    networks:
+      - whalink-network
+    ports:
+      - "9091:9090"
+
+  # Grafana - Monitoring Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: whalink_grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=
+      - GF_SERVER_ROOT_URL=https://localhost/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./data/grafana:/var/lib/grafana
+    networks:
+      - whalink-network
+    ports:
+      - "3001:3000"
+
+networks:
+  whalink-network:
+    driver: bridge
+    name: whalink-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  evolution_data:
+  prometheus_data:
+  grafana_data:

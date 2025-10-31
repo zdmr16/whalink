@@ -1,0 +1,40 @@
+# Environment variables
+.env
+
+# Data directories
+data/
+*.sqlite
+*.db
+
+# SSL certificates
+ssl/localhost.crt
+ssl/localhost.key
+
+# Logs
+logs/
+*.log
+
+# Docker volumes
+volumes/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (if needed later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp

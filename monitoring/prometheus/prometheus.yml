@@ -1,0 +1,49 @@
+# Prometheus Configuration for Whalink
+# =====================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'whalink-monitor'
+    environment: 'production'
+
+# Alerting configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # Evolution API Metrics
+  - job_name: 'evolution-api'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['evolution-api:9090']
+        labels:
+          service: 'evolution-api'
+          app: 'whatsapp'
+    metrics_path: '/metrics'
+
+  # Redis Exporter (if needed in future)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+
+  # PostgreSQL Exporter (if needed in future)
+  # - job_name: 'postgresql'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+
+  # Nginx Metrics (if needed in future)
+  # - job_name: 'nginx'
+  #   static_configs:
+  #     - targets: ['nginx-exporter:9113']
