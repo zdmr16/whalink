@@ -1,4 +1,4 @@
-.PHONY: help install start stop restart logs clean ssl status backup
+.PHONY: help install start stop restart logs clean ssl status backup dev dev-logs dev-stop dev-build submodules
 
 # Default target
 .DEFAULT_GOAL := help
@@ -28,9 +28,66 @@ install: ## Install and setup the project (first time only)
 
 ssl: ## Generate SSL certificates
 	@echo "🔐 Generating SSL certificates..."
-	@./generate-ssl.sh
+	@./scripts/generate-ssl.sh
 
-start: ## Start all services
+# ====================
+# DEVELOPMENT COMMANDS
+# ====================
+
+dev: ## Start development environment (hot reload)
+	@echo "🔥 Starting development environment with hot reload..."
+	@docker-compose -f docker-compose.dev.yml up -d
+	@echo "✅ Development environment started!"
+	@echo ""
+	@echo "🌐 Development URLs:"
+	@echo "  • Frontend (Vite HMR):  http://localhost:5173"
+	@echo "  • Backend API:          http://localhost:8080"
+	@echo "  • Swagger Docs:         http://localhost:8080/manager"
+	@echo "  • Grafana:              http://localhost:3001"
+	@echo "  • Prometheus:           http://localhost:9091"
+	@echo ""
+	@echo "💡 Hot reload is enabled!"
+	@echo "   - Backend: Edit files in backend/src/"
+	@echo "   - Frontend: Edit files in frontend/src/"
+	@echo ""
+	@echo "📝 View logs: make dev-logs"
+
+dev-logs: ## Show development logs (use 'make dev-logs service=evolution-api' for specific)
+	@if [ -z "$(service)" ]; then \
+		docker-compose -f docker-compose.dev.yml logs -f; \
+	else \
+		docker-compose -f docker-compose.dev.yml logs -f $(service); \
+	fi
+
+dev-stop: ## Stop development environment
+	@echo "🛑 Stopping development environment..."
+	@docker-compose -f docker-compose.dev.yml down
+	@echo "✅ Development environment stopped!"
+
+dev-build: ## Rebuild development environment
+	@echo "🔨 Rebuilding development environment..."
+	@docker-compose -f docker-compose.dev.yml build
+	@echo "✅ Rebuild complete! Run 'make dev' to start."
+
+dev-restart: ## Restart development environment
+	@echo "🔄 Restarting development environment..."
+	@docker-compose -f docker-compose.dev.yml restart
+	@echo "✅ Development environment restarted!"
+
+submodules: ## Update git submodules to latest
+	@echo "📦 Updating git submodules..."
+	@git submodule update --remote --merge
+	@echo "✅ Submodules updated!"
+	@echo ""
+	@echo "⚠️  Don't forget to commit the submodule pointer updates:"
+	@echo "   git add backend frontend"
+	@echo "   git commit -m \"chore: update submodules\""
+
+# ===================
+# PRODUCTION COMMANDS
+# ===================
+
+start: ## Start all services (production)
 	@echo "🚀 Starting Whalink services..."
 	@docker-compose up -d
 	@echo "✅ Services started!"

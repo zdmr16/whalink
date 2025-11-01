@@ -1,0 +1,6 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/EvolutionAPI/evolution-api.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/EvolutionAPI/evolution-manager-v2.git

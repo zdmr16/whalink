@@ -2,6 +2,14 @@
 
 A fully dockerized WhatsApp API management platform powered by [Evolution API](https://github.com/EvolutionAPI/evolution-api), featuring real-time messaging, monitoring, and a beautiful web interface.
 
+**⚡ Built from Source** - Includes Evolution API and Evolution Manager as Git submodules for full source code access and customization.
+
+## 🎯 Quick Links
+
+- **[Development Guide](DEVELOPMENT.md)** - Complete guide for local development with hot reload
+- **[Evolution API Docs](https://doc.evolution-api.com)** - Official API documentation
+- **[Changelog](CHANGELOG.md)** - Version history and updates
+
 ## ✨ Features
 
 ### Core Features
@@ -45,10 +53,16 @@ A fully dockerized WhatsApp API management platform powered by [Evolution API](h
 
 ## 🔧 Installation
 
-### 1. Clone the Repository
+### Production Setup
+
+### 1. Clone the Repository with Submodules
 ```bash
-git clone https://github.com/yourusername/whalink.git
+# Clone with submodules (includes Evolution API and Manager source code)
+git clone --recurse-submodules https://github.com/yourusername/whalink.git
 cd whalink
+
+# If you already cloned without submodules:
+git submodule update --init --recursive
 ```
 
 ### 2. Configure Environment
@@ -67,11 +81,8 @@ nano .env
 
 ### 3. Generate SSL Certificates
 ```bash
-# Make script executable (if not already)
-chmod +x generate-ssl.sh
-
 # Generate self-signed certificates for localhost
-./generate-ssl.sh
+./scripts/generate-ssl.sh
 ```
 
 ### 4. Start Services
@@ -95,6 +106,47 @@ After starting the services:
 | **Prometheus** | http://localhost:9091 | - |
 
 **Note:** Browser will show SSL warning for self-signed certificate. Click "Advanced" and proceed.
+
+---
+
+## 🔥 Development Setup
+
+Want to modify the source code or contribute? We've got you covered with hot reload!
+
+### Quick Start Development
+
+```bash
+# 1. Clone with submodules (if not done already)
+git clone --recurse-submodules https://github.com/yourusername/whalink.git
+cd whalink
+
+# 2. Copy development environment
+cp .env.development .env
+
+# 3. Start development environment (hot reload enabled!)
+make dev
+
+# 4. Access development URLs
+# Frontend (Vite HMR):  http://localhost:5173
+# Backend API:          http://localhost:8080
+# Swagger Docs:         http://localhost:8080/manager
+```
+
+### Development Features
+
+✅ **Hot Reload** - Changes in backend/frontend auto-reload
+✅ **Source Code Access** - Full Evolution API & Manager source code
+✅ **Debugging** - Direct access to logs and containers
+✅ **Fast Iteration** - No rebuild needed for code changes
+
+**See [DEVELOPMENT.md](DEVELOPMENT.md) for complete development guide including:**
+- Hot reload workflow
+- Database migrations
+- Git submodule management
+- Testing & debugging
+- Code quality tools
+
+---
 
 ## 📖 Quick Start Guide
 
