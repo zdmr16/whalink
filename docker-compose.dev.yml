@@ -122,7 +122,6 @@ services:
     volumes:
       # Mount source code for hot reload
       - ./backend/src:/app/src:ro
-      - ./backend/prisma:/app/prisma:ro
       # Persistent data
       - ./data/evolution:/app/instances
       # Don't mount node_modules (keep container's version)
@@ -132,7 +131,7 @@ services:
       - "8080:8080"
       - "9090:9090"
     command: >
-      sh -c "npm run db:generate && npm run db:deploy && npm run dev:server"
+      sh -c "npm run db:deploy && npm run dev:server"
 
   # Evolution Manager - Frontend with Hot Reload (Vite HMR)
   evolution-manager:
