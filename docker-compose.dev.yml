@@ -62,6 +62,7 @@ services:
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
       - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER:-evolution}:${POSTGRES_PASSWORD:-evolution_dev}@postgres:5432/${POSTGRES_DB:-evolution}?schema=public
+      - DATABASE_CONNECTION_CLIENT_NAME=${DATABASE_CONNECTION_CLIENT_NAME:-Whalink}
       - DATABASE_SAVE_DATA_INSTANCE=true
       - DATABASE_SAVE_DATA_NEW_MESSAGE=true
       - DATABASE_SAVE_MESSAGE_UPDATE=true
@@ -113,6 +114,10 @@ services:
       # Telemetry
       - TELEMETRY_ENABLED=false
 
+      # WhatsApp Device Name Configuration
+      - CONFIG_SESSION_PHONE_CLIENT=${CONFIG_SESSION_PHONE_CLIENT:-Whalink}
+      - CONFIG_SESSION_PHONE_NAME=${CONFIG_SESSION_PHONE_NAME:-Chrome}
+
       # Metrics for Prometheus
       - METRICS_ENABLED=true
       - METRICS_PORT=9090
@@ -131,7 +136,7 @@ services:
       - "8080:8080"
       - "9090:9090"
     command: >
-      sh -c "npm run db:deploy && npm run dev:server"
+      sh -c "npm run db:generate && npm run db:deploy && npm run dev:server"
 
   # Evolution Manager - Frontend with Hot Reload (Vite HMR)
   evolution-manager:
@@ -150,6 +155,7 @@ services:
       - ./frontend/src:/app/src:cached
       - ./frontend/public:/app/public:cached
       - ./frontend/index.html:/app/index.html:cached
+      - ./frontend/vite.config.ts:/app/vite.config.ts:cached
       # Don't mount node_modules
     networks:
       - whalink-network

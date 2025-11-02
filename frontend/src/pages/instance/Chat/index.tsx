@@ -187,13 +187,13 @@ function Chat() {
             </div>
             <Tabs defaultValue="contacts" className="flex flex-col flex-1 min-h-0">
               <TabsList className="tabs-chat flex-shrink-0">
-                <TabsTrigger value="contacts">Contatos</TabsTrigger>
-                <TabsTrigger value="groups">Grupos</TabsTrigger>
+                <TabsTrigger value="contacts">Contacts</TabsTrigger>
+                <TabsTrigger value="groups">Groups</TabsTrigger>
               </TabsList>
               <TabsContent value="contacts" className="flex-1 overflow-hidden">
                 <div className="h-full overflow-auto">
                   <div className="grid gap-1 p-2 text-foreground">
-                    <div className="px-2 text-xs font-medium text-muted-foreground">Contatos</div>
+                    <div className="px-2 text-xs font-medium text-muted-foreground">Contacts</div>
                     {chats?.map(
                       (chat: ChatType) =>
                         chat.remoteJid.includes("@s.whatsapp.net") && (

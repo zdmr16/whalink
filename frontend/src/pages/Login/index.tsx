@@ -16,7 +16,7 @@ import { logout, saveToken } from "@/lib/queries/token";
 import { useTheme } from "@/components/theme-provider";
 
 const loginSchema = z.object({
-  serverUrl: z.string({ required_error: "serverUrl is required" }).url("URL inválida"),
+  serverUrl: z.string({ required_error: "serverUrl is required" }).url("Invalid URL"),
   apiKey: z.string({ required_error: "ApiKey is required" }),
 });
 type LoginSchema = z.infer<typeof loginSchema>;
@@ -71,7 +71,9 @@ function Login() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="flex items-center justify-center pt-2">
-        <img className="h-10" src={theme === "dark" ? "https://evolution-api.com/files/evo/evolution-logo-white.svg" : "https://evolution-api.com/files/evo/evolution-logo.svg"} alt="logo" />
+        <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-[#25D366]" : "text-black"}`}>
+          Whalink
+        </h1>
       </div>
       <div className="flex flex-1 items-center justify-center p-8">
         <Card className="b-none w-[350px] shadow-none">

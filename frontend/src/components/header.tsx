@@ -31,15 +31,11 @@ function Header({ instanceId }: { instanceId?: string }) {
   return (
     <header className="flex items-center justify-between px-4 py-2">
       <Link to="/manager" onClick={navigateToDashboard} className="flex h-8 items-center gap-4">
-        <img src={theme === "dark" ? "https://evolution-api.com/files/evo/evolution-logo-white.svg" : "https://evolution-api.com/files/evo/evolution-logo.svg"} alt="Logo" className="h-full" />
+        <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-[#25D366]" : "text-black"}`}>
+          Whalink
+        </h1>
       </Link>
       <div className="flex items-center gap-4">
-        {instanceId && (
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={instance?.profilePicUrl || "/assets/images/evolution-logo.png"} alt={instance?.name} />
-          </Avatar>
-        )}
-        <LanguageToggle />
         <ModeToggle />
         <Button onClick={() => setLogoutConfirmation(true)} variant="destructive" size="icon">
           <DoorOpen size="18" />
@@ -50,14 +46,14 @@ function Header({ instanceId }: { instanceId?: string }) {
         <Dialog onOpenChange={setLogoutConfirmation} open={logoutConfirmation}>
           <DialogContent>
             <DialogClose />
-            <DialogHeader>Deseja realmente sair?</DialogHeader>
+            <DialogHeader>Do you really want to logout?</DialogHeader>
             <DialogFooter>
               <div className="flex items-center gap-4">
                 <Button onClick={() => setLogoutConfirmation(false)} size="sm" variant="outline">
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button onClick={handleClose} variant="destructive">
-                  Sair
+                  Logout
                 </Button>
               </div>
             </DialogFooter>

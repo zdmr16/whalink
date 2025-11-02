@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install tsx for hot reload
+RUN npm install -g tsx
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy all files
+COPY . .
+
+# Expose ports
+EXPOSE 8080 9090
+
+# Start with tsx watch for hot reload
+# db:deploy will handle prisma generate automatically
+CMD ["sh", "-c", "npm run db:deploy && npm run dev:server"]
