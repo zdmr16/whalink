@@ -12,6 +12,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import fs from 'fs';
 import mimeTypes from 'mime-types';
 import path from 'path';
+import swaggerUi from 'swagger-ui-express';
 
 import { BusinessRouter } from './business.router';
 import { CallRouter } from './call.router';
@@ -43,6 +44,7 @@ const guards = [instanceExistsGuard, instanceLoggedGuard, authGuard['apikey']];
 const telemetry = new Telemetry();
 
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+const swaggerDocument = JSON.parse(fs.readFileSync('./src/openapi.json', 'utf8'));
 
 // Middleware for metrics IP whitelist
 const metricsIPWhitelist = (req: Request, res: Response, next: NextFunction) => {
@@ -156,6 +158,16 @@ if (metricsConfig.ENABLED) {
 }
 
 if (!serverConfig.DISABLE_MANAGER) router.use('/manager', new ViewsRouter().router);
+
+// Swagger UI Documentation
+router.use(
+  '/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    customSiteTitle: 'Whalink API Documentation',
+    customCss: '.swagger-ui .topbar { display: none }',
+  }),
+);
 
 router.get('/assets/*', (req, res) => {
   const fileName = req.params[0];
