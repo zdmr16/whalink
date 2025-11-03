@@ -6710,18 +6710,8 @@
         "operationId": "getEvoInfo",
         "summary": "Get information about your Whalink",
         "deprecated": false,
-        "parameters": [
-          {
-            "name": "instance",
-            "in": "path",
-            "required": true,
-            "description": "ID of the instance to connect",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "description": "Get information about your Whalink",
+        "parameters": [],
+        "description": "Get general information about the Whalink API",
         "responses": {
           "200": {
             "description": "Ok",
@@ -6757,11 +6747,12 @@
                   },
                   "example": {
                     "status": 200,
-                    "message": "Welcome to the Whalink, it is working!",
-                    "version": "1.7.4",
-                    "swagger": "http://example.whalink.com/docs",
-                    "manager": "http://example.whalink.com/manager",
-                    "documentation": "https://doc.whalink.com"
+                    "message": "Welcome to Whalink, it is working!",
+                    "version": "2.3.6",
+                    "clientName": "Whalink",
+                    "manager": "http://localhost:8080/manager",
+                    "documentation": "https://docs.whalink.com",
+                    "whatsappWebVersion": "2.3000.1029292362"
                   }
                 }
               }
