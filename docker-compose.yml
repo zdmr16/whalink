@@ -174,9 +174,11 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
     volumes:
-      - ./docker/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./data/prometheus:/prometheus
+      - prometheus_data:/prometheus
     networks:
       - whalink-network
     ports:
@@ -214,3 +216,7 @@ volumes:
   evolution_data:
   prometheus_data:
   grafana_data:
+
+configs:
+  prometheus_config:
+    file: ./docker/monitoring/prometheus/prometheus.yml
