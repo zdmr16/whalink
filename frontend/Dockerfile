@@ -23,9 +23,8 @@ COPY public/ ./public/
 
 # Build the application
 RUN echo "Iniciando build..." && \
-    npm run build 2>&1 | tee build.log && \
-    echo "Build concluído." && \
-    ls -la dist/
+    npm run build && \
+    echo "Build concluído."
 
 FROM nginx:alpine
 
