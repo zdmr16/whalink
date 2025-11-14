@@ -51,8 +51,8 @@ services:
     environment:
       # Server Configuration
       - SERVER_TYPE=http
-      - SERVER_PORT=8080
-      - SERVER_URL=${SERVER_URL:-http://localhost:8080}
+      - SERVER_PORT=4000
+      - SERVER_URL=${SERVER_URL:-http://localhost:4000}
 
       # Database
       - DATABASE_ENABLED=true
@@ -113,16 +113,16 @@ services:
 
       # Metrics for Prometheus
       - METRICS_ENABLED=true
-      - METRICS_PORT=9090
+      - METRICS_PORT=4090
     volumes:
       - ./data/evolution:/evolution/instances
     networks:
       - whalink-network
     ports:
-      - "8080:8080"
-      - "9090:9090"
+      - "4000:4000"
+      - "4090:4090"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -141,7 +141,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "3000:80"
+      - "4001:80"
 
   # Nginx - SSL Reverse Proxy
   nginx:
@@ -158,8 +158,8 @@ services:
     networks:
       - whalink-network
     ports:
-      - "80:80"
-      - "443:443"
+      - "4080:80"
+      - "4443:443"
 
   # Prometheus - Metrics Collection
   prometheus:
@@ -180,7 +180,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "9091:9090"
+      - "4091:9090"
 
   # Grafana - Monitoring Dashboard
   grafana:
@@ -201,7 +201,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "3001:3000"
+      - "4030:3000"
 
 networks:
   whalink-network:

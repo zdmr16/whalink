@@ -15,7 +15,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "5432:5432"
+      - "4306:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-evolution}"]
       interval: 10s
@@ -33,7 +33,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "6379:6379"
+      - "4379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -55,8 +55,8 @@ services:
     environment:
       # Server Configuration
       - SERVER_TYPE=http
-      - SERVER_PORT=8080
-      - SERVER_URL=${SERVER_URL:-http://localhost:8080}
+      - SERVER_PORT=4000
+      - SERVER_URL=${SERVER_URL:-http://localhost:4000}
 
       # Database
       - DATABASE_ENABLED=true
@@ -120,7 +120,7 @@ services:
 
       # Metrics for Prometheus
       - METRICS_ENABLED=true
-      - METRICS_PORT=9090
+      - METRICS_PORT=4090
 
       # Development
       - NODE_ENV=development
@@ -133,8 +133,8 @@ services:
     networks:
       - whalink-network
     ports:
-      - "8080:8080"
-      - "9090:9090"
+      - "4000:4000"
+      - "4090:4090"
     command: >
       sh -c "npm run db:generate && npm run db:deploy && npm run dev:server"
 
@@ -148,7 +148,7 @@ services:
     depends_on:
       - evolution-api
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=http://localhost:4000
       - NODE_ENV=development
     volumes:
       # Mount source code for hot reload
@@ -160,7 +160,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "5173:5173"
+      - "4002:5173"
 
   # Prometheus - Metrics Collection
   prometheus:
@@ -181,7 +181,7 @@ services:
     networks:
       - whalink-network
     ports:
-      - "9091:9090"
+      - "4091:9090"
 
   # Grafana - Monitoring Dashboard
   grafana:
@@ -193,14 +193,14 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_SERVER_ROOT_URL=http://localhost:4030
     volumes:
       - ./docker/monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./data/grafana:/var/lib/grafana
     networks:
       - whalink-network
     ports:
-      - "3001:3000"
+      - "4030:3000"
 
 networks:
   whalink-network:
